@@ -75,7 +75,7 @@ public class EventStore {
             UUID streamId,
             Collection<Object> events,
             @Nullable Long expectedVersion,
-            StreamType streamType
+            Class<StreamType> streamType
     ) {
         return CompletableFuture.runAsync(() -> {
             transactionTemplate.executeWithoutResult((transactionStatus) -> {
@@ -90,7 +90,7 @@ public class EventStore {
                                 objectMapper.writeValueAsString(event),
                                 event.getClass().getName(),
                                 streamId,
-                                streamType.getClass().getName(),
+                                streamType.getName(),
                                 expectedVersion
                         );
 

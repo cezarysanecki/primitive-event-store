@@ -3,17 +3,17 @@ package pl.cezarysanecki.eventstore;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class EventStoreExtension {
+public class EventStoreExtensions {
 
     private final EventStore eventStore;
 
-    public EventStoreExtension(EventStore eventStore) {
+    public EventStoreExtensions(EventStore eventStore) {
         this.eventStore = eventStore;
     }
 
@@ -41,7 +41,7 @@ public class EventStoreExtension {
     public <T> void handle(
             Supplier<T> createDefault,
             BiFunction<T, Object, T> evolve,
-            BiFunction<Object, T, Object[]> decide,
+            BiFunction<Object, T, List<Object>> decide,
             UUID streamId,
             Object command,
             @Nullable Long expectedVersion
@@ -54,10 +54,10 @@ public class EventStoreExtension {
                 null
         );
 
-        Object[] events = decide.apply(command, entity);
+        List<Object> events = decide.apply(command, entity);
 
         try {
-            eventStore.appendEventsAsync(streamId, Arrays.asList(events), expectedVersion, events.getClass()).get();
+            eventStore.appendEventsAsync(streamId, events, expectedVersion, events.getClass()).get();
         } catch (Exception e) {
             throw new IllegalArgumentException("cannot handle command " + command + " from stream " + streamId, e);
         }

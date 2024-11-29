@@ -3,6 +3,8 @@ package pl.cezarysanecki.eventstore;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.cezarysanecki.exampledomain.events.EventA;
+import pl.cezarysanecki.exampledomain.events.EventB;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,14 +24,15 @@ class EventStoreTest {
     @Test
     public void checkIfEventStoreIsWorking() throws ExecutionException, InterruptedException {
         //given
+        UUID entityId = UUID.randomUUID();
         UUID streamId = UUID.randomUUID();
 
         //when
         eventStore.appendEventsAsync(
                 streamId,
                 List.of(
-                        new FirstExampleEvent(24),
-                        new SecondExampleEvent("test-123")
+                        new EventA(entityId, 24, 1L),
+                        new EventB(entityId, "test-123", 2L)
                 ),
                 null,
                 String.class
@@ -39,20 +42,14 @@ class EventStoreTest {
         Collection<Object> events = eventStore.getEventsAsync(streamId, null, null).get();
         assertThat(events).anySatisfy(event -> {
             assertThat(event)
-                    .isInstanceOf(FirstExampleEvent.class)
-                    .isEqualTo(new FirstExampleEvent(24));
+                    .isInstanceOf(EventA.class)
+                    .isEqualTo(new EventA(entityId, 24, 1L));
         });
         assertThat(events).anySatisfy(event -> {
             assertThat(event)
-                    .isInstanceOf(SecondExampleEvent.class)
-                    .isEqualTo(new SecondExampleEvent("test-123"));
+                    .isInstanceOf(EventB.class)
+                    .isEqualTo(new EventB(entityId, "test-123", 2L));
         });
     }
 
-}
-
-record FirstExampleEvent(int value) {
-}
-
-record SecondExampleEvent(String value) {
 }

@@ -55,4 +55,11 @@ public class EventStoreConfig {
     ) {
         return new EventStore(transactionTemplate, jdbcTemplate, objectMapper);
     }
+
+    @Bean
+    public EventStoreExtensions eventStoreExtension(
+            EventStore eventStore
+    ) {
+        return new EventStoreExtensions(eventStore);
+    }
 }

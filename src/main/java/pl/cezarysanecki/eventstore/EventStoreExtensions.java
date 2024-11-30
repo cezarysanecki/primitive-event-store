@@ -57,7 +57,7 @@ public class EventStoreExtensions {
         List<Object> events = decide.apply(command, entity);
 
         try {
-            eventStore.appendEventsAsync(streamId, events, expectedVersion, events.getClass()).get();
+            eventStore.appendEventsAsync(streamId, events, expectedVersion, entity.getClass()).get();
         } catch (Exception e) {
             throw new IllegalArgumentException("cannot handle command " + command + " from stream " + streamId, e);
         }

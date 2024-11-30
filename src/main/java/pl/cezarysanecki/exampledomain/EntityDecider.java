@@ -14,7 +14,7 @@ public class EntityDecider {
         }
 
         return List.of(
-                new EventA(entity.id, command.value, entity.version)
+                new EventA(entity.id, command.value, entity.version + 1)
         );
     }
 
@@ -24,7 +24,7 @@ public class EntityDecider {
         }
 
         return List.of(
-                new EventB(entity.id, command.value, entity.version)
+                new EventB(entity.id, command.value, entity.version + 1)
         );
     }
 

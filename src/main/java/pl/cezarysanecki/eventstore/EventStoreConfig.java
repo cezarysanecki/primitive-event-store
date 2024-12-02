@@ -8,8 +8,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import pl.cezarysanecki.projections.Projection;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Configuration(proxyBeanMethods = false)
 public class EventStoreConfig {
@@ -51,9 +53,12 @@ public class EventStoreConfig {
     public EventStore eventStore(
             TransactionTemplate transactionTemplate,
             JdbcTemplate jdbcTemplate,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            List<Projection> projections
     ) {
-        return new EventStore(transactionTemplate, jdbcTemplate, objectMapper);
+        EventStore eventStore = new EventStore(transactionTemplate, jdbcTemplate, objectMapper);
+        projections.forEach(eventStore::registerProjection);
+        return eventStore;
     }
 
     @Bean

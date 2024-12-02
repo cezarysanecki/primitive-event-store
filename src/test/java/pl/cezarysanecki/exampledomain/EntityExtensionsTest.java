@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.cezarysanecki.eventstore.EventStoreConfig;
+import pl.cezarysanecki.projections.ProjectionConfig;
 
 import java.util.UUID;
 
@@ -12,7 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringJUnitConfig(
         classes = {
                 EventStoreConfig.class,
-                EntityConfig.class
+                EntityConfig.class,
+                ProjectionConfig.class
         }
 )
 class EntityExtensionsTest {
@@ -31,7 +33,7 @@ class EntityExtensionsTest {
         );
         entityExtensions.handle(
                 entityId,
-                new EntityDecider.CommandA(entityId, 23),
+                new EntityDecider.CommandA(entityId, 48),
                 null
         );
         entityExtensions.handle(
@@ -44,7 +46,7 @@ class EntityExtensionsTest {
                 entityId,
                 null,
                 null);
-        assertThat(entity.value).isEqualTo(25);
+        assertThat(entity.value).isEqualTo(50);
 
     }
 

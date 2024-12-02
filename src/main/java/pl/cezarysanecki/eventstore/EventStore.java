@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.TransactionTemplate;
+import pl.cezarysanecki.projections.Projection;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,11 +26,20 @@ public class EventStore {
     private final TransactionTemplate transactionTemplate;
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
+    private final Map<Class, List<Projection>> projections = new HashMap<>();
 
     public EventStore(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
+    }
+
+    public void registerProjection(Projection projection) {
+        for (Class eventType : projection.handles()) {
+            List<Projection> projectionsForEventType = projections.getOrDefault(eventType, new ArrayList<>());
+            projectionsForEventType.add(projection);
+            projections.put(eventType, projectionsForEventType);
+        }
     }
 
     public Future<Collection<Object>> getEventsAsync(
@@ -104,9 +116,20 @@ public class EventStore {
                     } catch (JsonProcessingException e) {
                         throw new IllegalArgumentException("cannot serialize event " + event, e);
                     }
+
+                    applyProjections(event);
                 });
             });
         });
+    }
+
+    private void applyProjections(Object event) {
+        if (!projections.containsKey(event.getClass())) {
+            return;
+        }
+        for (Projection projection : projections.get(event.getClass())) {
+            projection.handle(event);
+        }
     }
 
 }

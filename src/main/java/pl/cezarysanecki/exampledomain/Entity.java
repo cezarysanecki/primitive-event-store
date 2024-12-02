@@ -12,7 +12,7 @@ public class Entity {
     final Long version;
 
     public Entity() {
-        this.id = UUID.randomUUID();
+        this.id = null;
         this.value = 0;
         this.version = 0L;
     }

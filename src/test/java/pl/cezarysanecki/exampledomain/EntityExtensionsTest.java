@@ -26,6 +26,11 @@ class EntityExtensionsTest {
 
         entityExtensions.handle(
                 entityId,
+                new EntityDecider.Create(entityId),
+                null
+        );
+        entityExtensions.handle(
+                entityId,
                 new EntityDecider.CommandA(entityId, 23),
                 null
         );

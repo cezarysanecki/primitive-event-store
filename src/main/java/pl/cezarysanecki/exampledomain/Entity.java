@@ -1,5 +1,6 @@
 package pl.cezarysanecki.exampledomain;
 
+import pl.cezarysanecki.exampledomain.events.Created;
 import pl.cezarysanecki.exampledomain.events.EventA;
 import pl.cezarysanecki.exampledomain.events.EventB;
 
@@ -25,10 +26,15 @@ public class Entity {
 
     public static Entity evolve(Entity entity, Object event) {
         return switch (event) {
+            case Created created -> entity.apply(created);
             case EventA eventA -> entity.apply(eventA);
             case EventB eventB -> entity.apply(eventB);
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
+    }
+
+    private Entity apply(Created event) {
+        return new Entity(event.entityId(), value, event.version());
     }
 
     private Entity apply(EventA event) {
